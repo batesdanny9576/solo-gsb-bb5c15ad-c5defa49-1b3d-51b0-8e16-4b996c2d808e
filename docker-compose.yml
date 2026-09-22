@@ -1,0 +1,23 @@
+services:
+  selective-disclosure:
+    build: .
+    image: selective-json-disclosure:latest
+    container_name: selective-json-disclosure
+    ports:
+      # 宿主机端口:容器内端口。宿主机端口可用环境变量 PORT 覆盖。
+      - "${PORT:-8000}:8000"
+    environment:
+      # 以下均为可选，默认值见 docker-entrypoint.sh
+      UVI_HOST: "0.0.0.0"
+      UVI_PORT: "8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - "CMD"
+        - "python"
+        - "-c"
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health').status==200 else 1)"
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
